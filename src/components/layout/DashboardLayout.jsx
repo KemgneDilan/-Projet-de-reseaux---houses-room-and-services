@@ -7,11 +7,11 @@ import { useLanguage } from '@/app/contexts/LanguageContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Home, Search, Calendar, Star, Users, Settings,
-  LogOut, Menu, X, LayoutDashboard, CreditCard, Box, MessageSquare, ChevronLeft
+  LogOut, Menu, X, LayoutDashboard, CreditCard, Box, MessageSquare, ChevronLeft, Repeat2
 } from 'lucide-react'
 
 export function DashboardLayout({ children }) {
-  const { user, logout } = useAuth()
+  const { user, rawUser, logout, currentMode, setCurrentMode } = useAuth()
   const { t } = useLanguage()
   const pathname = usePathname()
   const router = useRouter()
@@ -30,14 +30,30 @@ export function DashboardLayout({ children }) {
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true)
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setIsSidebarOpen(false)
+    }
   }, [])
 
+  // Fermer la sidebar sur mobile après navigation
   React.useEffect(() => {
-    if (user?.role) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUserRole(user.role)
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setIsSidebarOpen(false)
     }
-  }, [user])
+  }, [pathname])
+
+  // Gérer le resize de la fenêtre
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsSidebarOpen(true)
+      } else {
+        setIsSidebarOpen(false)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   function PlusIcon(props) {
     return (
@@ -87,24 +103,47 @@ export function DashboardLayout({ children }) {
 
   const links = isMounted ? getSidebarLinks() : []
 
+  // Un utilisateur peut switcher si son kycStatus est 'validated' (hôte approuvé)
+  const isKycHost = isMounted && (
+    rawUser?.kycStatus === 'validated' ||
+    rawUser?.role === 'host' ||
+    rawUser?.role === 'admin'
+  )
+
+  const handleModeSwitch = () => {
+    const next = currentMode === 'host' ? 'client' : 'host'
+    setCurrentMode(next)
+    // Rediriger vers le dashboard correspondant
+    router.push(next === 'host' ? '/host' : '/client')
+  }
+
   const getRoleLabel = () => {
-    const role = userRole || user?.role
-    switch (role) {
-      case 'client': return '✈️ Utilisateur'
-      case 'host': return '🏠 Hôte'
-      case 'admin': return '🛡️ Admin'
-      default: return '👤 Membre'
-    }
+    if (user?.role === 'admin') return '🛡️ Admin'
+    if (currentMode === 'host') return '🏠 Mode Hôte'
+    return '✈️ Mode Utilisateur'
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-50 font-sans">
+    <div className="min-h-screen flex bg-slate-50 font-sans relative">
+
+      {/* Backdrop sombre d'overlay sur mobile */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* ══ SIDEBAR ══ */}
       <motion.aside
         animate={{ width: isSidebarOpen ? 240 : 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="relative flex-shrink-0 overflow-hidden z-30 bg-blue-50 dark:bg-charcoal-900 border-r border-slate-200 dark:border-charcoal-800"
+        className="fixed inset-y-0 left-0 lg:relative flex-shrink-0 overflow-hidden z-50 bg-blue-50 dark:bg-charcoal-900 border-r border-slate-200 dark:border-charcoal-800 h-full lg:h-auto shadow-xl lg:shadow-none"
       >
         <AnimatePresence>
           {isSidebarOpen && (
@@ -175,7 +214,20 @@ export function DashboardLayout({ children }) {
               </nav>
 
               {/* Pied de sidebar */}
-              <div className="border-t border-slate-200/60 dark:border-charcoal-800 px-3 py-3">
+              <div className="border-t border-slate-200/60 dark:border-charcoal-800 px-3 py-3 space-y-1">
+                {/* Bouton switch de mode — visible uniquement pour les hôtes KYC validés */}
+                {isKycHost && user?.role !== 'admin' && (
+                  <button
+                    onClick={handleModeSwitch}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-blue-700 dark:text-blue-400 hover:bg-blue-100/60 dark:hover:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/40 mb-1"
+                    title={currentMode === 'host' ? 'Passer en mode Utilisateur' : 'Passer en mode Hôte'}
+                  >
+                    <Repeat2 className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">
+                      {currentMode === 'host' ? 'Mode Utilisateur' : 'Mode Hôte'}
+                    </span>
+                  </button>
+                )}
                 <button
                   onClick={logout}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"

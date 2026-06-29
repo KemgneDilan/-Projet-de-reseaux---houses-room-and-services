@@ -118,12 +118,13 @@ export default function KycPage() {
   const [kycRequest, setKycRequest] = useState(null)
   const [submitted, setSubmitted] = useState(false)
 
-  // Form state
   const [formData, setFormData] = useState({
     fullName: '',
-    docType: 'Carte Nationale d\'Identité',
+    docType: "Carte Nationale d'Identité",
     docNumber: '',
-    agreeTos: false
+    agreeTos: false,
+    docFiles: [],        // Array of { name, type, data (base64) }
+    docPreviews: [],     // Array of data URLs for previews
   })
 
   const loadKycStatus = useCallback(() => {
@@ -139,6 +140,31 @@ export default function KycPage() {
       setKycStatus('none')
     }
   }, [user])
+
+  const handleDocFilesChange = (e) => {
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
+    // Limit to 3 files, max 3MB each
+    const allowed = files.slice(0, 3)
+    const readers = allowed.map(file => new Promise((resolve) => {
+      if (file.size > 3 * 1024 * 1024) {
+        toast.error(`Le fichier "${file.name}" dépasse 3 Mo.`)
+        resolve(null)
+        return
+      }
+      const reader = new FileReader()
+      reader.onload = (ev) => resolve({ name: file.name, type: file.type, data: ev.target.result })
+      reader.readAsDataURL(file)
+    }))
+    Promise.all(readers).then(results => {
+      const valid = results.filter(Boolean)
+      setFormData(prev => ({
+        ...prev,
+        docFiles: valid,
+        docPreviews: valid.map(f => f.data)
+      }))
+    })
+  }
 
   useEffect(() => {
     if (!loading && !user) {
@@ -158,6 +184,10 @@ export default function KycPage() {
       toast.error("Veuillez entrer le numéro de votre document.")
       return
     }
+    if (!formData.docFiles || formData.docFiles.length === 0) {
+      toast.error("Veuillez joindre au moins une photo de votre pièce d'identité.")
+      return
+    }
     if (!formData.agreeTos) {
       toast.error("Vous devez accepter les conditions d'utilisation.")
       return
@@ -171,6 +201,7 @@ export default function KycPage() {
       fullName: formData.fullName,
       docType: formData.docType,
       docNumber: formData.docNumber,
+      documents: formData.docFiles,  // Array of { name, type, data } en Base64
       status: 'pending',
       submittedAt: new Date().toISOString(),
       reviewedAt: null,
@@ -394,6 +425,65 @@ export default function KycPage() {
                         />
                       </div>
 
+                      {/* Upload pièces d'identité */}
+                      <div>
+                        <label className="text-sm font-semibold text-charcoal-700 dark:text-charcoal-300 mb-2 block">
+                          Photo(s) de votre pièce d&apos;identité * <span className="text-xs font-normal text-charcoal-400">(recto, verso — max 3 Mo chacune)</span>
+                        </label>
+                        <label
+                          htmlFor="kyc-doc-upload"
+                          className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-charcoal-300 dark:border-charcoal-600 hover:border-terracotta-400 dark:hover:border-terracotta-500 rounded-2xl p-6 cursor-pointer bg-charcoal-50/50 dark:bg-charcoal-800/50 transition-colors group"
+                        >
+                          <Upload className="h-8 w-8 text-charcoal-400 dark:text-charcoal-500 group-hover:text-terracotta-500 transition-colors" />
+                          <div className="text-center">
+                            <p className="text-sm font-medium text-charcoal-700 dark:text-charcoal-300">Cliquez pour s&apos;léctionner vos fichiers</p>
+                            <p className="text-xs text-charcoal-400 mt-1">JPG, PNG ou PDF — jusqu&apos;à 3 fichiers</p>
+                          </div>
+                          <input
+                            id="kyc-doc-upload"
+                            type="file"
+                            accept="image/*,application/pdf"
+                            multiple
+                            onChange={handleDocFilesChange}
+                            className="hidden"
+                          />
+                        </label>
+
+                        {/* Prévisualisation des fichiers sélectionnés */}
+                        {formData.docFiles.length > 0 && (
+                          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {formData.docFiles.map((doc, idx) => (
+                              <div key={idx} className="relative group rounded-xl border border-charcoal-200 dark:border-charcoal-700 overflow-hidden bg-white dark:bg-charcoal-900 shadow-sm">
+                                {doc.type?.startsWith('image/') ? (
+                                  <img
+                                    src={doc.data}
+                                    alt={doc.name}
+                                    className="w-full h-24 object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-24 flex flex-col items-center justify-center gap-1 bg-blue-50 dark:bg-blue-950/30">
+                                    <FileText className="h-8 w-8 text-blue-500" />
+                                    <span className="text-[10px] text-blue-700 dark:text-blue-300 font-medium px-1 truncate w-full text-center">{doc.name}</span>
+                                  </div>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => setFormData(prev => ({
+                                    ...prev,
+                                    docFiles: prev.docFiles.filter((_, i) => i !== idx),
+                                    docPreviews: prev.docPreviews.filter((_, i) => i !== idx)
+                                  }))}
+                                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <XCircle className="h-3 w-3" />
+                                </button>
+                                <p className="text-[10px] text-charcoal-500 dark:text-charcoal-400 px-2 py-1 truncate">{doc.name}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       {/* ToS Checkbox */}
                       <div className="flex items-start gap-3 bg-charcoal-50 dark:bg-charcoal-800 rounded-xl p-4">
                         <input
@@ -416,7 +506,7 @@ export default function KycPage() {
                       {/* Submit Button */}
                       <Button
                         onClick={handleSubmit}
-                        disabled={!formData.fullName.trim() || !formData.docNumber.trim() || !formData.agreeTos}
+                        disabled={!formData.fullName.trim() || !formData.docNumber.trim() || !formData.agreeTos || formData.docFiles.length === 0}
                         className="w-full bg-gradient-to-r from-terracotta-500 to-orange-500 hover:from-terracotta-600 hover:to-orange-600 text-white font-bold py-4 rounded-2xl text-base gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-terracotta-500/20"
                       >
                         <ShieldCheck className="h-5 w-5" />

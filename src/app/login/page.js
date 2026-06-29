@@ -8,12 +8,14 @@ import { useAuth } from '@/app/contexts/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const { login, user, loading } = useAuth()
   const router = useRouter()
   const [emailOrPhone, setEmailOrPhone] = React.useState('')
   const [password, setPassword] = React.useState('')
+  const [showPassword, setShowPassword] = React.useState(false)
   const [error, setError] = React.useState('')
   const [isLoading, setIsLoading] = React.useState(false)
 
@@ -83,12 +85,23 @@ export default function LoginPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-charcoal-700 mb-1">Mot de passe</label>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal-400 hover:text-charcoal-700 transition-colors"
+                    aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <Button type="submit" disabled={isLoading} className="w-full h-12 text-lg mt-2">
                 {isLoading ? 'Connexion en cours...' : 'Se connecter'}

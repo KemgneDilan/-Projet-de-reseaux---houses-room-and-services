@@ -95,6 +95,32 @@ export default function ClientDashboard() {
     router.push('/')
   }
 
+  const handleCancelReservation = (reservationId) => {
+    if (!user) return
+    const userKey = `hrs_reservations_${user.id}`
+    const savedReservations = JSON.parse(localStorage.getItem(userKey) || '[]')
+    
+    const res = savedReservations.find(r => r.id === reservationId)
+    if (!res) return
+
+    const updated = savedReservations.map(r => 
+      r.id === reservationId ? { ...r, status: 'cancelled' } : r
+    )
+    localStorage.setItem(userKey, JSON.stringify(updated))
+    setReservations(updated)
+    setSelectedReservation(null)
+
+    // Remove blocked dates
+    if (res.roomIds && Array.isArray(res.roomIds)) {
+      res.roomIds.forEach(roomId => {
+        const blockedKey = `hrs_blocked_${roomId}`
+        const blocked = JSON.parse(localStorage.getItem(blockedKey) || '[]')
+        const filtered = blocked.filter(b => b.reservationId !== reservationId)
+        localStorage.setItem(blockedKey, JSON.stringify(filtered))
+      })
+    }
+  }
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'confirmed':
@@ -353,6 +379,20 @@ export default function ClientDashboard() {
                         <Button variant="outline" size="sm" onClick={() => setSelectedReservation(reservation)}>
                           {t('res_details')}
                         </Button>
+                        {reservation.status === 'pending' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm("Êtes-vous sûr de vouloir annuler cette réservation ?")) {
+                                handleCancelReservation(reservation.id)
+                              }
+                            }}
+                            className="border-red-200 dark:border-red-900/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                          >
+                            Annuler
+                          </Button>
+                        )}
                         {reservation.status === 'confirmed' && (
                           <RatingButton
                             item={{ id: reservation.listingId, title: reservation.title }}
@@ -633,6 +673,22 @@ export default function ClientDashboard() {
                     <p className="text-xs text-charcoal-400 text-right">
                       Réservation créée le {new Date(res.createdAt).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}
                     </p>
+                  )}
+
+                  {res.status === 'pending' && (
+                    <div className="pt-4 border-t border-charcoal-200 dark:border-charcoal-800 flex justify-end gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (confirm("Êtes-vous sûr de vouloir annuler cette réservation ?")) {
+                            handleCancelReservation(res.id)
+                          }
+                        }}
+                        className="border-red-200 dark:border-red-900/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 font-semibold w-full sm:w-auto"
+                      >
+                        Annuler la réservation
+                      </Button>
+                    </div>
                   )}
                 </div>
               </motion.div>

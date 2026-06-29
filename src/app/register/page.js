@@ -7,6 +7,7 @@ import { useAuth } from "@/app/contexts/AuthContext"
 import { Button } from "@/components/ui/Button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card"
 import { Input } from "@/components/ui/Input"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function RegisterPage() {
   const { register } = useAuth()
@@ -21,6 +22,7 @@ export default function RegisterPage() {
   })
   const [errors, setErrors] = React.useState({})
   const [loading, setLoading] = React.useState(false)
+  const [showPassword, setShowPassword] = React.useState(false)
 
   /**
    * Valide les données du formulaire
@@ -174,13 +176,23 @@ export default function RegisterPage() {
                 <label className="block text-sm font-medium text-charcoal-700 mb-1">
                   Mot de passe (min. 6 caractères) *
                 </label>
-                <Input 
-                  type="password" 
-                  placeholder="••••••••" 
-                  value={formData.password}
-                  onChange={(e) => handleChange('password', e.target.value)}
-                  className={errors.password ? "border-red-500" : ""}
-                />
+                <div className="relative">
+                  <Input 
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••" 
+                    value={formData.password}
+                    onChange={(e) => handleChange('password', e.target.value)}
+                    className={`pr-10 ${errors.password ? "border-red-500" : ""}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal-400 hover:text-charcoal-700 transition-colors"
+                    aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {errors.password && <p className="text-xs text-red-600 mt-1">{errors.password}</p>}
               </div>
 

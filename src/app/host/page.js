@@ -182,15 +182,63 @@ export default function HostDashboard() {
   }, [])
 
   const handleAcceptReservation = (reservationId) => {
+    // Update local state
     setReceivedReservations(prev => prev.map(r => 
       r.id === reservationId ? { ...r, status: 'confirmed' } : r
     ))
+    
+    // Propagate to client's reservations in localStorage
+    if (typeof window !== 'undefined') {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key && key.startsWith('hrs_reservations_')) {
+          try {
+            const list = JSON.parse(localStorage.getItem(key) || '[]')
+            const foundIdx = list.findIndex(r => String(r.id) === String(reservationId))
+            if (foundIdx !== -1) {
+              list[foundIdx].status = 'confirmed'
+              localStorage.setItem(key, JSON.stringify(list))
+              break
+            }
+          } catch (e) {}
+        }
+      }
+    }
   }
 
   const handleRejectReservation = (reservationId) => {
+    // Update local state
     setReceivedReservations(prev => prev.map(r => 
       r.id === reservationId ? { ...r, status: 'cancelled' } : r
     ))
+
+    // Propagate to client's reservations in localStorage and clear blocked dates
+    if (typeof window !== 'undefined') {
+      let targetRoomIds = []
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key && key.startsWith('hrs_reservations_')) {
+          try {
+            const list = JSON.parse(localStorage.getItem(key) || '[]')
+            const foundIdx = list.findIndex(r => String(r.id) === String(reservationId))
+            if (foundIdx !== -1) {
+              list[foundIdx].status = 'cancelled'
+              targetRoomIds = list[foundIdx].roomIds || []
+              localStorage.setItem(key, JSON.stringify(list))
+              break
+            }
+          } catch (e) {}
+        }
+      }
+
+      // Remove blocked dates for rooms
+      targetRoomIds.forEach(roomId => {
+        const blockedKey = `hrs_blocked_${roomId}`
+        const blocked = JSON.parse(localStorage.getItem(blockedKey) || '[]')
+        const filtered = blocked.filter(b => String(b.reservationId) !== String(reservationId))
+        localStorage.setItem(blockedKey, JSON.stringify(filtered))
+      })
+    }
   }
 
   const handleSave = (updatedItem) => {

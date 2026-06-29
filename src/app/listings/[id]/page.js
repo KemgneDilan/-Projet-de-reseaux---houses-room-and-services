@@ -5,7 +5,7 @@ import React, { useEffect, useState, useMemo } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import Image from "next/image"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   Star,
   MapPin,
@@ -23,12 +23,16 @@ import {
   Bath,
   Wind,
   X,
+  Clock,
+  AlertCircle,
+  CheckCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { listings, houses, rooms } from "@/lib/mockData"
 import { getReviewsFor, calculateAverageRating } from '@/lib/ratingUtils'
 import { useAuth } from "@/app/contexts/AuthContext"
+import { MapPreview } from "@/components/features/MapPreview"
 
 export default function ListingDetailPage() {
   const { id } = useParams()
@@ -77,6 +81,8 @@ export default function ListingDetailPage() {
   const [selectedRoomIds, setSelectedRoomIds] = useState(isRoomListing ? [listing.id] : [])
   const [video, setVideo] = useState(null)
   const [photos, setPhotos] = useState([])
+  const [successReservation, setSuccessReservation] = useState(null)
+  const [nowTime, setNowTime] = useState(Date.now())
 
   useEffect(() => {
     const savedFavs = JSON.parse(localStorage.getItem('hrs_favorites') || '[]')
@@ -316,8 +322,39 @@ export default function ListingDetailPage() {
       localStorage.setItem(blockedKey, JSON.stringify(blocked))
     }
 
-    alert("Votre demande de séjour gratuite a été transmise à l'hôte. Il dispose de 24h pour y répondre !")
-    router.push('/client')
+    setSuccessReservation(reservation)
+  }
+
+  useEffect(() => {
+    if (!successReservation) return
+    const interval = setInterval(() => {
+      setNowTime(Date.now())
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [successReservation])
+
+  const handleCancelReservation = (reservationId) => {
+    if (!user) return
+    const userKey = `hrs_reservations_${user.id}`
+    const prev = JSON.parse(localStorage.getItem(userKey) || '[]')
+    const res = prev.find(r => r.id === reservationId)
+    if (!res) return
+
+    const updated = prev.map(r => r.id === reservationId ? { ...r, status: 'cancelled' } : r)
+    localStorage.setItem(userKey, JSON.stringify(updated))
+
+    // Remove blocked dates
+    if (res.roomIds && Array.isArray(res.roomIds)) {
+      res.roomIds.forEach(roomId => {
+        const blockedKey = `hrs_blocked_${roomId}`
+        const blocked = JSON.parse(localStorage.getItem(blockedKey) || '[]')
+        const filtered = blocked.filter(b => b.reservationId !== reservationId)
+        localStorage.setItem(blockedKey, JSON.stringify(filtered))
+      })
+    }
+
+    setSuccessReservation(null)
+    alert("Votre réservation a été annulée avec succès.")
   }
 
   const setRoomSelection = (roomId) => {
@@ -531,6 +568,29 @@ export default function ListingDetailPage() {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Localisation et Carte */}
+            <div className="bg-white rounded-xl p-6 shadow-md">
+              <h2 className="text-2xl font-bold text-charcoal-900 mb-4">Localisation</h2>
+              <div className="space-y-4">
+                <div className="flex items-start gap-2 text-charcoal-700">
+                  <MapPin className="h-5 w-5 text-terracotta-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-charcoal-900">{listing.location || listing.city}</p>
+                    {listing.quartier && (
+                      <p className="text-sm text-charcoal-600">Quartier : <span className="font-semibold text-terracotta-600">{listing.quartier}</span></p>
+                    )}
+                  </div>
+                </div>
+                <MapPreview
+                  lat={listing.lat}
+                  lng={listing.lng}
+                  title={listing.title}
+                  location={listing.location || listing.city}
+                  quartier={listing.quartier}
+                />
+              </div>
             </div>
 
             {(isHouseListing || isMixedHouse) && (
@@ -777,6 +837,80 @@ export default function ListingDetailPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* ── Modal Succès Réservation ── */}
+      <AnimatePresence>
+        {successReservation && (() => {
+          const res = successReservation
+          const expiresAt = new Date(res.createdAt).getTime() + 24 * 60 * 60 * 1000
+          const remaining = expiresAt - nowTime
+          const hoursLeft = Math.max(0, Math.floor(remaining / 3600000))
+          const minutesLeft = Math.max(0, Math.floor((remaining % 3600000) / 60000))
+          const secondsLeft = Math.max(0, Math.floor((remaining % 60000) / 1000))
+
+          return (
+            <motion.div
+              key="booking-success-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal-950/80 backdrop-blur-md"
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="bg-white dark:bg-charcoal-900 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-charcoal-100 dark:border-charcoal-800 text-center space-y-6"
+              >
+                <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-950/40 rounded-full flex items-center justify-center text-green-600 dark:text-green-400">
+                  <CheckCircle className="h-10 w-10 animate-bounce" />
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-charcoal-900 dark:text-white">Demande envoyée !</h3>
+                  <p className="text-sm text-charcoal-600 dark:text-charcoal-400">
+                    Votre demande de réservation gratuite a été transmise à l&apos;hôte. Il doit la valider sous 24h.
+                  </p>
+                </div>
+
+                {/* Countdown display */}
+                <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-2xl p-4 space-y-2">
+                  <p className="text-xs text-orange-800 dark:text-orange-300 font-semibold uppercase tracking-wider">
+                    Temps restant pour la validation
+                  </p>
+                  <p className="text-3xl font-extrabold text-orange-600 dark:text-orange-400 tabular-nums tracking-tight">
+                    {remaining > 0 ? `${hoursLeft}h ${minutesLeft}m ${secondsLeft}s` : '⌛ Délai expiré'}
+                  </p>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <Button
+                    onClick={() => {
+                      setSuccessReservation(null)
+                      router.push('/client')
+                    }}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-2xl"
+                  >
+                    Aller au tableau de bord
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      if (confirm("Êtes-vous sûr de vouloir annuler cette réservation ?")) {
+                        handleCancelReservation(res.id)
+                      }
+                    }}
+                    className="w-full border-red-200 dark:border-red-900/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-2xl font-semibold"
+                  >
+                    Annuler la réservation
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )
+        })()}
+      </AnimatePresence>
     </div>
   )
 }
