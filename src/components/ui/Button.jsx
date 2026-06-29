@@ -4,17 +4,17 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 
 const Button = React.forwardRef(({ className, variant = "default", size = "default", asChild = false, children, isLoading = false, ...props }, ref) => {
-  const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-terracotta-500 disabled:pointer-events-none disabled:opacity-60 disabled:cursor-not-allowed"
+  const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 disabled:pointer-events-none disabled:opacity-60 disabled:cursor-not-allowed"
 
   const variants = {
-    default: "bg-gradient-to-r from-terracotta-500 to-orange-500 text-white shadow-lg hover:shadow-xl hover:from-terracotta-600 hover:to-orange-600 active:shadow-md",
-    destructive: "bg-red-500 text-white shadow-md hover:bg-red-600 active:bg-red-700",
-    outline: "border-2 border-terracotta-300 bg-white text-terracotta-700 shadow-sm hover:bg-terracotta-50 hover:border-terracotta-400 active:bg-terracotta-100",
-    secondary: "bg-charcoal-100 text-charcoal-900 shadow-sm hover:bg-charcoal-200 active:bg-charcoal-300",
-    ghost: "text-charcoal-700 hover:bg-charcoal-100 active:bg-charcoal-200",
-    link: "text-terracotta-600 underline-offset-4 hover:underline hover:text-terracotta-700",
-    success: "bg-green-500 text-white shadow-md hover:bg-green-600 active:bg-green-700",
-    subtle: "text-charcoal-600 hover:text-charcoal-900 hover:bg-charcoal-50",
+    default: "bg-blue-700 text-white hover:bg-blue-600 active:bg-blue-800",
+    destructive: "bg-red-500 text-white hover:bg-red-600 active:bg-red-700",
+    outline: "border border-blue-700 bg-white text-blue-700 hover:bg-blue-50 active:bg-blue-100",
+    secondary: "bg-slate-100 text-slate-800 hover:bg-slate-200 active:bg-slate-300",
+    ghost: "text-slate-700 hover:bg-slate-100 active:bg-slate-200",
+    link: "text-blue-700 underline-offset-4 hover:underline hover:text-blue-800",
+    success: "bg-green-600 text-white hover:bg-green-700 active:bg-green-800",
+    subtle: "text-slate-600 hover:text-slate-900 hover:bg-slate-50",
   }
 
   const sizes = {

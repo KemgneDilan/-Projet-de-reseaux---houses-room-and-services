@@ -554,6 +554,7 @@ export default function AdminDashboard() {
                         <th className="px-6 py-4">Nom Complet Soumis</th>
                         <th className="px-6 py-4">Document</th>
                         <th className="px-6 py-4">Numéro CNI/Passeport</th>
+                        <th className="px-6 py-4">Pièces</th>
                         <th className="px-6 py-4">Date de soumission</th>
                         <th className="px-6 py-4">Statut</th>
                         <th className="px-6 py-4 text-right">Actions</th>
@@ -566,6 +567,67 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4 text-charcoal-700 dark:text-charcoal-300">{r.fullName}</td>
                           <td className="px-6 py-4 text-charcoal-500">{r.docType}</td>
                           <td className="px-6 py-4 font-mono text-charcoal-600 dark:text-charcoal-400">{r.docNumber}</td>
+                          <td className="px-6 py-4">
+                            {r.documents && r.documents.length > 0 ? (
+                              <div className="flex flex-col gap-1.5">
+                                {r.documents.map((doc, dIdx) => (
+                                  <div key={dIdx} className="flex items-center gap-1.5">
+                                    {doc.data && doc.data !== 'placeholder' ? (
+                                      <>
+                                        <button
+                                          onClick={() => {
+                                            const w = window.open()
+                                            if (doc.type?.startsWith('image/')) {
+                                              w.document.write(`<img src="${doc.data}" style="max-width:100%;display:block;margin:auto;" />`)
+                                            } else {
+                                              w.document.write(`<iframe src="${doc.data}" style="width:100vw;height:100vh;border:none;"></iframe>`)
+                                            }
+                                          }}
+                                          className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200 dark:border-blue-900/50 px-2 py-0.5 rounded-md transition-colors"
+                                        >
+                                          <FileText className="h-3 w-3" />
+                                          Voir
+                                        </button>
+                                        <a
+                                          href={doc.data}
+                                          download={doc.name || `document_kyc_${r.username}_${dIdx + 1}`}
+                                          className="inline-flex items-center gap-1 text-xs font-semibold text-charcoal-600 hover:text-charcoal-900 bg-charcoal-50 dark:bg-charcoal-800/80 hover:bg-charcoal-100 border border-charcoal-200 dark:border-charcoal-700 px-2 py-0.5 rounded-md transition-colors"
+                                        >
+                                          <Download className="h-3 w-3" />
+                                          Télécharger
+                                        </a>
+                                      </>
+                                    ) : (
+                                      <span className="text-xs text-charcoal-450 italic">{doc.name || `Doc ${dIdx + 1}`}</span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : r.docFile && r.docFile.data && r.docFile.data !== 'placeholder' ? (
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => {
+                                    const w = window.open()
+                                    w.document.write(`<img src="${r.docFile.data}" style="max-width:100%;display:block;margin:auto;" />`)
+                                  }}
+                                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200 dark:border-blue-900/50 px-2 py-0.5 rounded-md transition-colors"
+                                >
+                                  <FileText className="h-3 w-3" />
+                                  Voir
+                                </button>
+                                <a
+                                  href={r.docFile.data}
+                                  download={r.docFile.name || `document_kyc_${r.username}`}
+                                  className="inline-flex items-center gap-1 text-xs font-semibold text-charcoal-600 hover:text-charcoal-900 bg-charcoal-50 dark:bg-charcoal-800/80 hover:bg-charcoal-100 border border-charcoal-200 dark:border-charcoal-700 px-2 py-0.5 rounded-md transition-colors"
+                                >
+                                  <Download className="h-3 w-3" />
+                                  Télécharger
+                                </a>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-charcoal-450 italic">Aucun fichier</span>
+                            )}
+                          </td>
                           <td className="px-6 py-4 text-charcoal-500">{new Date(r.submittedAt).toLocaleDateString()}</td>
                           <td className="px-6 py-4">
                             <Badge className={

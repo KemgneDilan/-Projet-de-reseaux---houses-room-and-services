@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calendar,
   MapPin,
@@ -17,8 +17,12 @@ import {
   AlertCircle,
   Home,
   Settings,
+  X,
+  Users,
+  Bed,
+  ExternalLink,
 } from 'lucide-react'
-import { listings } from '@/lib/mockData'
+import { listings, houses, rooms } from '@/lib/mockData'
 import { getReviewsFor, calculateAverageRating } from '@/lib/ratingUtils'
 import { Button } from '@/components/ui/Button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
@@ -27,42 +31,16 @@ import { useLanguage } from '@/app/contexts/LanguageContext'
 import { useRouter } from 'next/navigation'
 import RatingButton from '@/components/features/RatingButton'
 
-const mockReservations = [
-  {
-    id: 1,
-    listingId: 1,
-    title: 'Villa avec vue sur la mer',
-    location: 'Kribi',
-    checkIn: '2025-04-10',
-    checkOut: '2025-04-15',
-    status: 'confirmed',
-    totalPrice: 500,
-    guests: 2,
-  },
-  {
-    id: 2,
-    listingId: 2,
-    title: 'Appartement cosy en centre-ville',
-    location: 'Douala',
-    checkIn: '2025-05-01',
-    checkOut: '2025-05-05',
-    status: 'pending',
-    totalPrice: 350,
-    guests: 3,
-  },
-]
-
-const mockFavorites = listings[2] ? [listings[0], listings[1], listings[2]] : [listings[0], listings[1]]
-
 
 export default function ClientDashboard() {
   const { user, rawUser, logout, loading } = useAuth()
   const { t } = useLanguage()
   const router = useRouter()
   const [favorites, setFavorites] = React.useState([])
-  const [reservations, setReservations] = React.useState(mockReservations)
+  const [reservations, setReservations] = React.useState([])
   const [ratingMap, setRatingMap] = React.useState({})
   const [nowTime, setNowTime] = React.useState(Date.now())
+  const [selectedReservation, setSelectedReservation] = React.useState(null)
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -72,20 +50,11 @@ export default function ClientDashboard() {
   }, [])
 
   React.useEffect(() => {
-    const loadReservations = () => {
-      if (user) {
-        const userKey = `hrs_reservations_${user.id}`
-        const savedReservations = JSON.parse(localStorage.getItem(userKey) || '[]')
-        const merged = [...savedReservations]
-        mockReservations.forEach(mockRes => {
-          if (!merged.some(r => r.id === mockRes.id)) {
-            merged.push(mockRes)
-          }
-        })
-        setReservations(merged)
-      }
+    if (user) {
+      const userKey = `hrs_reservations_${user.id}`
+      const saved = JSON.parse(localStorage.getItem(userKey) || '[]')
+      setReservations(saved)
     }
-    loadReservations()
   }, [user])
 
   React.useEffect(() => {
@@ -264,7 +233,8 @@ export default function ClientDashboard() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.1 }}
-                      className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border-l-4 border-terracotta-500"
+                      className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow border-l-4 border-terracotta-500 cursor-pointer"
+                      onClick={() => setSelectedReservation(reservation)}
                     >
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
@@ -373,14 +343,14 @@ export default function ClientDashboard() {
                         </div>
                       )}
 
-                      <div className="mt-4 pt-4 border-t border-charcoal-200 flex gap-2 flex-wrap">
+                      <div className="mt-4 pt-4 border-t border-charcoal-200 flex gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
                         <Link href={`/messages?contact=${reservation.id}`}>
                           <Button variant="outline" size="sm">
                             <MessageSquare className="h-4 w-4 mr-2" />
                             {t('res_contact_host')}
                           </Button>
                         </Link>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => setSelectedReservation(reservation)}>
                           {t('res_details')}
                         </Button>
                         {reservation.status === 'confirmed' && (
@@ -516,6 +486,160 @@ export default function ClientDashboard() {
             </motion.div>
           </TabsContent>
         </Tabs>
+
+      {/* ── Modal Détails Réservation ── */}
+      <AnimatePresence>
+        {selectedReservation && (() => {
+          const res = selectedReservation
+          const allEntities = [...listings, ...houses, ...rooms]
+          const lodge = allEntities.find(l => String(l.id) === String(res.listingId))
+          const nights = res.checkIn && res.checkOut
+            ? Math.max(1, Math.round((new Date(res.checkOut) - new Date(res.checkIn)) / 86400000))
+            : null
+          return (
+            <motion.div
+              key="modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal-950/60 backdrop-blur-sm"
+              onClick={() => setSelectedReservation(null)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ duration: 0.25 }}
+                className="bg-white dark:bg-charcoal-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                onClick={e => e.stopPropagation()}
+              >
+                {/* Header image */}
+                {lodge?.images?.[0] && (
+                  <div className="relative h-52 overflow-hidden rounded-t-2xl">
+                    <Image src={lodge.images[0]} alt={lodge.title || res.title} fill unoptimized className="object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/70 to-transparent" />
+                    <div className="absolute bottom-4 left-4">
+                      <p className="text-white font-bold text-xl drop-shadow">{res.title}</p>
+                      <p className="text-slate-200 text-sm flex items-center gap-1">
+                        <MapPin className="h-4 w-4" /> {res.location}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setSelectedReservation(null)}
+                      className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white transition"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                )}
+
+                <div className="p-6 space-y-6">
+                  {/* Sans image : titre + fermer */}
+                  {!lodge?.images?.[0] && (
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h2 className="text-xl font-bold text-charcoal-900 dark:text-white">{res.title}</h2>
+                        <p className="text-charcoal-500 text-sm flex items-center gap-1 mt-1">
+                          <MapPin className="h-4 w-4" /> {res.location}
+                        </p>
+                      </div>
+                      <button onClick={() => setSelectedReservation(null)} className="p-2 rounded-full hover:bg-charcoal-100 dark:hover:bg-charcoal-800 transition">
+                        <X className="h-5 w-5 text-charcoal-600" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Statut */}
+                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold ${getStatusColor(res.status)}`}>
+                    {getStatusIcon(res.status)}
+                    {getStatusLabel(res.status)}
+                  </div>
+
+                  {/* Infos réservation */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-50 dark:bg-charcoal-950 rounded-xl p-4">
+                      <p className="text-xs text-charcoal-500 uppercase tracking-wide font-semibold mb-1">Arrivée</p>
+                      <p className="font-bold text-charcoal-900 dark:text-white">{res.checkIn ? new Date(res.checkIn).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' }) : '—'}</p>
+                    </div>
+                    <div className="bg-slate-50 dark:bg-charcoal-950 rounded-xl p-4">
+                      <p className="text-xs text-charcoal-500 uppercase tracking-wide font-semibold mb-1">Départ</p>
+                      <p className="font-bold text-charcoal-900 dark:text-white">{res.checkOut ? new Date(res.checkOut).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' }) : '—'}</p>
+                    </div>
+                    {nights && (
+                      <div className="bg-slate-50 dark:bg-charcoal-950 rounded-xl p-4">
+                        <p className="text-xs text-charcoal-500 uppercase tracking-wide font-semibold mb-1">Durée</p>
+                        <p className="font-bold text-charcoal-900 dark:text-white">{nights} nuit{nights > 1 ? 's' : ''}</p>
+                      </div>
+                    )}
+                    <div className="bg-slate-50 dark:bg-charcoal-950 rounded-xl p-4">
+                      <p className="text-xs text-charcoal-500 uppercase tracking-wide font-semibold mb-1">Personnes</p>
+                      <p className="font-bold text-charcoal-900 dark:text-white flex items-center gap-1">
+                        <Users className="h-4 w-4 text-charcoal-500" /> {res.guests || '—'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Infos logement */}
+                  {lodge && (
+                    <div className="border-t border-charcoal-200 dark:border-charcoal-800 pt-4">
+                      <h3 className="font-bold text-charcoal-900 dark:text-white mb-3 flex items-center gap-2">
+                        <Bed className="h-5 w-5 text-blue-600" /> Détails du logement
+                      </h3>
+                      <div className="space-y-2 text-sm text-charcoal-700 dark:text-charcoal-300">
+                        {lodge.description && <p className="leading-relaxed">{lodge.description}</p>}
+                        {lodge.amenities?.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {lodge.amenities.slice(0, 6).map((a, i) => (
+                              <span key={i} className="px-2 py-1 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">{a}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <Link href={`/listings/${lodge.id}`} className="inline-flex items-center gap-1.5 mt-3 text-sm font-semibold text-blue-600 hover:underline">
+                        <ExternalLink className="h-4 w-4" /> Voir la fiche complète
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* Médias joints */}
+                  {(res.photos?.length > 0 || res.video) && (
+                    <div className="border-t border-charcoal-200 dark:border-charcoal-800 pt-4">
+                      <h3 className="font-bold text-charcoal-900 dark:text-white mb-3">Médias joints à la réservation</h3>
+                      <div className="flex flex-wrap gap-3">
+                        {res.photos?.map((photo, pIdx) => (
+                          <div key={pIdx} className="w-16 h-16 rounded-lg overflow-hidden border border-charcoal-200 relative shadow-sm">
+                            {photo.data && photo.data !== 'placeholder' ? (
+                              <Image src={photo.data} alt={photo.name} fill unoptimized className="object-cover cursor-pointer" onClick={() => { const w = window.open(); w.document.write(`<img src="${photo.data}" style="max-width:100%;display:block;margin:auto;">`) }} />
+                            ) : (
+                              <div className="text-[10px] text-charcoal-400 p-1 truncate text-center">📷 {photo.name}</div>
+                            )}
+                          </div>
+                        ))}
+                        {res.video && (
+                          <div className="w-40 h-16 rounded-lg overflow-hidden border border-charcoal-200 bg-charcoal-900 relative shadow-sm">
+                            {res.video.data && res.video.data !== 'placeholder' ? (
+                              <video src={res.video.data} controls className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="text-[9px] text-white p-2 font-semibold text-center">🎥 {res.video.name}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Date de création */}
+                  {res.createdAt && (
+                    <p className="text-xs text-charcoal-400 text-right">
+                      Réservation créée le {new Date(res.createdAt).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            </motion.div>
+          )
+        })()}
+      </AnimatePresence>
       </div>
   )
 }

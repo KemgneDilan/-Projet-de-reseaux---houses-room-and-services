@@ -7,35 +7,42 @@ import { Star, MapPin, Wifi, Utensils, Dumbbell, Heart, Sparkles } from "lucide-
 import { Button } from "@/components/ui/Button"
 import { getReviewsFor, calculateAverageRating } from '@/lib/ratingUtils'
 
+import { useAuth } from "@/app/contexts/AuthContext"
+
 // Accepts pre-computed avgRating to skip localStorage reads per card.
 // Falls back to localStorage only when avgRating is not provided (standalone usage).
+// Uses useEffect to defer localStorage reads to client-side only, preventing SSR hydration mismatches.
 function ListingRating({ id, rating, reviewsCount, avgRating: precomputed }) {
-  let avg, count
-  if (precomputed !== undefined && precomputed !== null) {
-    avg = precomputed || rating
-    count = reviewsCount
-  } else {
-    try {
-      const rv = getReviewsFor('listing', id)
-      avg = calculateAverageRating(rv.map(r => ({ rating: r.rating }))) || rating
-      count = rv.length || reviewsCount
-    } catch (e) {
-      return null
+  const [clientData, setClientData] = React.useState(null)
+
+  React.useEffect(() => {
+    if (precomputed !== undefined && precomputed !== null) {
+      setClientData({ avg: precomputed || rating, count: reviewsCount })
+    } else {
+      try {
+        const rv = getReviewsFor('listing', id)
+        const avg = calculateAverageRating(rv.map(r => ({ rating: r.rating }))) || rating
+        setClientData({ avg, count: rv.length || reviewsCount })
+      } catch (e) {
+        setClientData(null)
+      }
     }
-  }
-  if (!avg) return null
+  }, [id, rating, reviewsCount, precomputed])
+
+  if (!clientData?.avg) return null
+
   return (
     <div className="flex items-center gap-2 mb-3">
       <div className="flex items-center gap-1">
         {[...Array(5)].map((_, i) => (
           <Star
             key={i}
-            className={`h-4 w-4 ${i < Math.floor(avg) ? 'fill-yellow-400 text-yellow-400' : 'text-charcoal-300'}`}
+            className={`h-4 w-4 ${i < Math.floor(clientData.avg) ? 'fill-yellow-400 text-yellow-400' : 'text-charcoal-300'}`}
           />
         ))}
       </div>
-      <span className="text-sm font-semibold text-charcoal-900">{Number(avg).toFixed(1)}</span>
-      <span className="text-sm text-charcoal-500">({count} avis)</span>
+      <span className="text-sm font-semibold text-charcoal-900">{Number(clientData.avg).toFixed(1)}</span>
+      <span className="text-sm text-charcoal-500">({clientData.count} avis)</span>
     </div>
   )
 }
@@ -55,6 +62,7 @@ export function ListingCard({
   avgRating,
   onFavorite 
 }) {
+  const { user } = useAuth()
   const [isFav, setIsFav] = React.useState(isFavorited)
   // Support both `image` (single) and `images` (array) props
   const displayImage = image || (Array.isArray(images) && images[0]) || null
@@ -65,13 +73,15 @@ export function ListingCard({
     gym: <Dumbbell className="h-4 w-4" />,
   }
 
+  const detailHref = user ? `/listings/${id}` : `/login?redirect=/listings/${id}`
+
   return (
     <motion.div
       whileHover={{ y: -8 }}
       transition={{ duration: 0.3 }}
       className="h-full"
     >
-      <Link href={`/listings/${id}`}>
+      <Link href={detailHref}>
         <div className="group cursor-pointer h-full flex flex-col bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
           {/* Image Container */}
           <div className="relative h-56 md:h-64 overflow-hidden bg-charcoal-100">
@@ -96,6 +106,10 @@ export function ListingCard({
             <button
               onClick={(e) => {
                 e.preventDefault()
+                if (!user) {
+                  window.location.href = `/login?redirect=/listings/${id}`
+                  return
+                }
                 setIsFav(!isFav)
                 onFavorite?.(id, !isFav)
               }}

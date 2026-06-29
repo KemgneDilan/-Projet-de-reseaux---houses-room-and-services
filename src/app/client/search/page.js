@@ -83,7 +83,7 @@ export default function ClientSearchPage() {
         {/* Search + Filters toolbar */}
         <div className="bg-white rounded-2xl shadow-sm border border-charcoal-100 p-4 mb-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="flex-1">
-            <SearchBar onSearch={handleSearch} isLoading={isLoading} className="w-full" />
+            <SearchBar onSearch={handleSearch} className="w-full" />
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}

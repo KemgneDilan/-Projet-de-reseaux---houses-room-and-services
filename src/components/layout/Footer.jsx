@@ -31,21 +31,21 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-charcoal-900 text-charcoal-100 mt-20">
+    <footer className="bg-slate-900 text-slate-300 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="bg-linear-to-br from-terracotta-500 to-orange-500 text-white p-2 rounded-lg">
-                <Home className="h-6 w-6" />
+              <div className="bg-blue-700 text-white p-2 rounded-md">
+                <Home className="h-5 w-5" />
               </div>
-              <span className="text-xl font-bold">Loomdaah</span>
+              <span className="text-lg font-semibold text-white">Loomdaah</span>
             </div>
-            <p className="text-charcoal-400 text-sm mb-6">
+            <p className="text-slate-400 text-sm mb-6">
               {t('footer_desc')}
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               {[
                 { icon: Share2, href: "#" },
                 { icon: TwitterIcon, href: "#" },
@@ -53,8 +53,8 @@ export function Footer() {
                 { icon: LinkedinIcon, href: "#" },
               ].map((social, idx) => (
                 <Link key={idx} href={social.href}>
-                  <button className="p-2 rounded-lg bg-charcoal-800 hover:bg-terracotta-500 transition-colors">
-                    <social.icon className="h-5 w-5" />
+                  <button className="p-2 rounded-md bg-slate-800 hover:bg-blue-700 transition-colors">
+                    <social.icon className="h-4 w-4" />
                   </button>
                 </Link>
               ))}
@@ -63,107 +63,55 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold text-white mb-4">{t('footer_nav')}</h4>
-            <ul className="space-y-2 text-charcoal-400 text-sm">
-              <li>
-                <Link href="/" className="hover:text-terracotta-400 transition-colors">
-                  {t('nav_home')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/client/search" className="hover:text-terracotta-400 transition-colors">
-                  {t('nav_search')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/map" className="hover:text-terracotta-400 transition-colors">
-                  {t('nav_map')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="hover:text-terracotta-400 transition-colors">
-                  {t('nav_about')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="hover:text-terracotta-400 transition-colors">
-                  {t('footer_blog')}
-                </Link>
-              </li>
+            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">{t('footer_nav')}</h4>
+            <ul className="space-y-2 text-slate-400 text-sm">
+              <li><Link href="/" className="hover:text-blue-400 transition-colors">{t('nav_home')}</Link></li>
+              <li><Link href="/client/search" className="hover:text-blue-400 transition-colors">{t('nav_search')}</Link></li>
+              <li><Link href="/map" className="hover:text-blue-400 transition-colors">{t('nav_map')}</Link></li>
+              <li><Link href="/about" className="hover:text-blue-400 transition-colors">{t('nav_about')}</Link></li>
+              <li><Link href="/blog" className="hover:text-blue-400 transition-colors">{t('footer_blog')}</Link></li>
             </ul>
           </div>
 
           {/* Support */}
           <div>
-            <h4 className="font-semibold text-white mb-4">{t('footer_support')}</h4>
-            <ul className="space-y-2 text-charcoal-400 text-sm">
-              <li>
-                <Link href="/help" className="hover:text-terracotta-400 transition-colors">
-                  {t('footer_help')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-terracotta-400 transition-colors">
-                  {t('nav_contact')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq" className="hover:text-terracotta-400 transition-colors">
-                  {t('footer_faq')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="hover:text-terracotta-400 transition-colors">
-                  {t('footer_terms')}
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="hover:text-terracotta-400 transition-colors">
-                  {t('footer_privacy')}
-                </Link>
-              </li>
+            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">{t('footer_support')}</h4>
+            <ul className="space-y-2 text-slate-400 text-sm">
+              <li><Link href="/help" className="hover:text-blue-400 transition-colors">{t('footer_help')}</Link></li>
+              <li><Link href="/contact" className="hover:text-blue-400 transition-colors">{t('nav_contact')}</Link></li>
+              <li><Link href="/faq" className="hover:text-blue-400 transition-colors">{t('footer_faq')}</Link></li>
+              <li><Link href="/terms" className="hover:text-blue-400 transition-colors">{t('footer_terms')}</Link></li>
+              <li><Link href="/privacy" className="hover:text-blue-400 transition-colors">{t('footer_privacy')}</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold text-white mb-4">{t('footer_contact_us')}</h4>
-            <ul className="space-y-3 text-charcoal-400 text-sm">
+            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">{t('footer_contact_us')}</h4>
+            <ul className="space-y-3 text-slate-400 text-sm">
               <li className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-terracotta-500 shrink-0 mt-0.5" />
+                <MapPin className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
                 <span>Melen, Yaoundé, Cameroun</span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-terracotta-500 shrink-0" />
-                <a href="tel:+237600000000" className="hover:text-terracotta-400 transition-colors">
-                  +237 6 00 00 00 00
-                </a>
+                <Phone className="h-4 w-4 text-blue-500 shrink-0" />
+                <a href="tel:+237600000000" className="hover:text-blue-400 transition-colors">+237 6 00 00 00 00</a>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-terracotta-500 shrink-0" />
-                <a href="mailto:info@hrs.com" className="hover:text-terracotta-400 transition-colors">
-                  info@hrs.com
-                </a>
+                <Mail className="h-4 w-4 text-blue-500 shrink-0" />
+                <a href="mailto:info@hrs.com" className="hover:text-blue-400 transition-colors">info@hrs.com</a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-charcoal-800 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between text-charcoal-400 text-sm">
-            <p>
-              © {currentYear} Loomdaah. {t('footer_rights')}
-            </p>
+        <div className="border-t border-slate-800 py-8">
+          <div className="flex flex-col md:flex-row items-center justify-between text-slate-500 text-sm">
+            <p>© {currentYear} Loomdaah. {t('footer_rights')}</p>
             <div className="flex gap-6 mt-4 md:mt-0">
-              <Link href="/terms" className="hover:text-terracotta-400 transition-colors">
-                {t('footer_terms')}
-              </Link>
-              <Link href="/privacy" className="hover:text-terracotta-400 transition-colors">
-                {t('footer_privacy')}
-              </Link>
-              <Link href="/cookies" className="hover:text-terracotta-400 transition-colors">
-                {t('footer_cookies')}
-              </Link>
+              <Link href="/terms" className="hover:text-blue-400 transition-colors">{t('footer_terms')}</Link>
+              <Link href="/privacy" className="hover:text-blue-400 transition-colors">{t('footer_privacy')}</Link>
+              <Link href="/cookies" className="hover:text-blue-400 transition-colors">{t('footer_cookies')}</Link>
             </div>
           </div>
         </div>

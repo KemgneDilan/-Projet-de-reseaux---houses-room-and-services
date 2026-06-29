@@ -18,7 +18,7 @@ const Input = React.forwardRef(
         <input
           type={type}
           className={cn(
-            "flex h-11 w-full rounded-lg border-2 border-charcoal-200 bg-white px-4 py-2 text-sm transition-all duration-200 placeholder:text-charcoal-400 focus:outline-none focus:border-terracotta-500 focus:ring-2 focus:ring-terracotta-100 disabled:cursor-not-allowed disabled:bg-charcoal-50 disabled:opacity-50",
+            "flex h-11 w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:opacity-50",
             Icon && "pl-10",
             error && "border-red-500 focus:border-red-500 focus:ring-red-100",
             className

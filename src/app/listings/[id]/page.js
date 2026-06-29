@@ -1,7 +1,7 @@
 "use client"
 // @ts-nocheck
 /* eslint-disable react-hooks/purity */
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import Image from "next/image"
@@ -593,11 +593,11 @@ export default function ListingDetailPage() {
                   <div key={review.id} className="pb-6 border-b border-charcoal-200 dark:border-charcoal-700 last:border-b-0">
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-full bg-linear-to-br from-terracotta-400 to-orange-500 flex items-center justify-center font-bold text-white">
-                        {review.user.substring(0, 2)}
+                        {(review.user || '?').substring(0, 2)}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h4 className="font-semibold text-charcoal-900 dark:text-white">{review.user}</h4>
+                          <h4 className="font-semibold text-charcoal-900 dark:text-white">{review.user || 'Anonyme'}</h4>
                           <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
                               <Star
@@ -753,107 +753,6 @@ export default function ListingDetailPage() {
                       onChange={(e) => setGuests(Number(e.target.value))}
                       required
                     />
-                  </div>
-
-                  {/* Media Uploads */}
-                  <div className="space-y-4 rounded-2xl border border-charcoal-200 bg-charcoal-50 p-4 dark:border-charcoal-700 dark:bg-charcoal-900">
-                    <p className="font-semibold text-charcoal-900 dark:text-white text-xs">Fichiers multimédias de la réservation (Optionnel)</p>
-                    
-                    {/* Photos upload */}
-                    <div className="space-y-1.5">
-                      <label className="block text-[11px] font-semibold text-charcoal-700 dark:text-charcoal-350">
-                        Photos (Jusqu&apos;à 5, max 1 Mo chacune)
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="file"
-                          id="reservation-photos"
-                          multiple
-                          accept="image/*"
-                          onChange={handlePhotosChange}
-                          disabled={photos.length >= 5}
-                          className="hidden"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={photos.length >= 5}
-                          onClick={() => document.getElementById('reservation-photos').click()}
-                          className="w-full text-xs"
-                        >
-                          📷 Ajouter des photos ({photos.length}/5)
-                        </Button>
-                      </div>
-
-                      {photos.length > 0 && (
-                        <div className="grid grid-cols-5 gap-2 mt-2">
-                          {photos.map((photo, index) => (
-                            <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border border-charcoal-200 bg-white dark:bg-charcoal-950">
-                              <Image
-                                src={photo.data}
-                                alt={photo.name}
-                                fill
-                                unoptimized
-                                className="object-cover"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => removePhoto(index)}
-                                className="absolute top-1 right-1 p-0.5 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors shadow-sm"
-                              >
-                                <X className="h-3 w-3" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Video upload */}
-                    <div className="space-y-1.5">
-                      <label className="block text-[11px] font-semibold text-charcoal-700 dark:text-charcoal-350">
-                        Vidéo (Max 1, max 2 Mo)
-                      </label>
-                      {!video ? (
-                        <div>
-                          <input
-                            type="file"
-                            id="reservation-video"
-                            accept="video/*"
-                            onChange={handleVideoChange}
-                            className="hidden"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => document.getElementById('reservation-video').click()}
-                            className="w-full text-xs"
-                          >
-                            🎥 Ajouter une vidéo
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="relative rounded-lg overflow-hidden border border-charcoal-200 bg-charcoal-900 p-1 flex flex-col items-center">
-                          <video
-                            src={video.data}
-                            controls
-                            className="w-full max-h-24 rounded object-cover"
-                          />
-                          <div className="flex justify-between items-center w-full px-2 py-1 text-xs text-white">
-                            <span className="truncate max-w-[80%] font-medium">{video.name}</span>
-                            <button
-                              type="button"
-                              onClick={removeVideo}
-                              className="p-1 rounded bg-red-500 hover:bg-red-600 transition-colors text-[10px]"
-                            >
-                              Supprimer
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
                   </div>
 
                   <Button type="submit" size="lg" className="w-full">Demander un séjour</Button>

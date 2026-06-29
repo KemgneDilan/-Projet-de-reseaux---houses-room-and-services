@@ -22,36 +22,41 @@ export default function Home() {
   const featuredListings = listings.slice(0, 6)
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-slate-50/50 dark:bg-charcoal-950">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden -mt-16 pt-16">
         {/* Background Image with Overlay */}
         <div
-          className="absolute inset-0 bg-cover bg-center z-0"
+          className="absolute inset-0 bg-cover bg-center z-0 scale-105"
           style={{
             backgroundImage:
               'url("https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1920&q=80")',
           }}
         />
-        <div className="absolute inset-0 bg-linear-to-b from-charcoal-900/70 via-charcoal-900/60 to-charcoal-900/50 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-charcoal-950/80 via-charcoal-900/60 to-charcoal-955/85 z-10" />
 
-        <div className="relative z-20 text-center px-4 max-w-5xl mx-auto w-full">
+        {/* Floating Light Beams */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl pointer-events-none z-10 animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none z-10 animate-pulse" />
+
+        <div className="relative z-20 text-center px-4 max-w-5xl mx-auto w-full flex flex-col items-center">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-block mb-6 px-4 py-2 bg-terracotta-500/20 border border-terracotta-400/40 rounded-full"
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 bg-blue-500/10 backdrop-blur-md border border-blue-400/20 rounded-full shadow-lg"
           >
-            <span className="text-terracotta-300 text-sm font-semibold">
-              ✨ {t('home_welcome_badge')}
+            <span className="text-blue-200 text-sm font-semibold tracking-wide flex items-center gap-1.5">
+               {t('home_welcome_badge')}
             </span>
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight leading-tight drop-shadow-sm"
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-blue-100 to-blue-300 mb-6 tracking-tight leading-[1.08] drop-shadow-sm"
+            style={{ fontFamily: 'var(--font-outfit), sans-serif' }}
           >
             {t('home_hero_title1')}
           </motion.h1>
@@ -59,8 +64,8 @@ export default function Home() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg md:text-xl text-charcoal-100 mb-12 max-w-2xl mx-auto drop-shadow-sm"
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            className="text-lg md:text-2xl text-blue-100/90 mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-sm font-light tracking-wide"
           >
             {t('home_hero_title2')}
           </motion.p>
@@ -69,19 +74,19 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.6 }}
-            className="flex flex-col md:flex-row gap-4 justify-center"
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto"
           >
             <Link
               href="/login"
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-full text-lg font-semibold transition-all duration-200 bg-gradient-to-r from-terracotta-500 to-orange-500 text-white shadow-xl hover:shadow-2xl hover:from-terracotta-600 hover:to-orange-600 active:shadow-md h-14 px-10"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-base font-semibold transition-all bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white h-12 px-8 shadow-lg shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] duration-200"
             >
               {t('home_cta_start')}
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <Link
               href="/about"
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-full text-lg font-semibold transition-all duration-200 border-2 border-charcoal-300 bg-white text-charcoal-700 hover:bg-charcoal-50 hover:border-charcoal-400 active:bg-charcoal-100 h-14 px-10"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-base font-semibold transition-all border border-white/35 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 h-12 px-8 hover:scale-[1.02] active:scale-[0.98] duration-200 shadow-sm"
             >
               {t('home_cta_learn')}
             </Link>
@@ -90,9 +95,9 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white border-b border-charcoal-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <section className="relative z-25 -mt-16 mx-4 max-w-7xl lg:mx-auto w-[calc(100%-2rem)] lg:w-full">
+        <div className="bg-white/80 dark:bg-charcoal-900/80 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-205/50 dark:border-charcoal-800 p-8 md:p-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-y-0 md:divide-x divide-slate-100 dark:divide-charcoal-800/85">
             {[
               { number: "25+", label: t('home_stats_listings') },
               { number: "50K+", label: t('home_stats_users') },
@@ -101,15 +106,16 @@ export default function Home() {
             ].map((stat, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
+                transition={{ delay: idx * 0.1, duration: 0.5 }}
+                className="px-2"
               >
-                <p className="text-4xl font-bold text-terracotta-600 mb-2">
+                <p className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-blue-700 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent mb-2">
                   {stat.number}
                 </p>
-                <p className="text-charcoal-600">{stat.label}</p>
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 tracking-wide uppercase">{stat.label}</p>
               </motion.div>
             ))}
           </div>
@@ -117,25 +123,32 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-linear-to-b from-charcoal-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-28 bg-slate-50 dark:bg-charcoal-950 relative overflow-hidden">
+        {/* Glow behind section */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[400px] bg-blue-500/5 dark:bg-blue-500/3 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            transition={{ duration: 0.6 }}
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl font-bold text-charcoal-900 mb-4">
+            <span className="inline-block mb-4 text-xs font-bold tracking-[0.2em] uppercase text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-4 py-1.5 rounded-full border border-blue-200/60 dark:border-blue-800/50">
+              ✦ Fonctionnalités
+            </span>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-5 tracking-tight" style={{ fontFamily: 'var(--font-outfit), sans-serif' }}>
               {t('home_features_title')}
             </h2>
-            <p className="text-charcoal-600 max-w-2xl mx-auto text-lg">
+            <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto text-lg md:text-xl font-light leading-relaxed">
               {t('home_features_subtitle')}
             </p>
           </motion.div>
 
-          <div className="overflow-hidden relative w-full py-4">
-            <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-linear-to-r from-charcoal-50 to-transparent z-10" />
-            <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-linear-to-l from-charcoal-50 to-transparent z-10" />
+          <div className="overflow-hidden relative w-full py-6">
+            <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-slate-50 via-slate-50/80 to-transparent dark:from-charcoal-950 dark:via-charcoal-950/80 dark:to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-slate-50 via-slate-50/80 to-transparent dark:from-charcoal-950 dark:via-charcoal-950/80 dark:to-transparent z-10 pointer-events-none" />
 
             {/* Défilement continu horizontal (Marquee) */}
             <motion.div
@@ -152,16 +165,29 @@ export default function Home() {
                   { icon: Users, title: t('home_feature5_title'), description: t('home_feature5_desc'), color: "purple" },
                   { icon: TrendingUp, title: t('home_feature6_title'), description: t('home_feature6_desc'), color: "orange" }
                 ];
+                
+                const getColorClasses = (color) => {
+                  switch (color) {
+                    case 'terracotta': return 'bg-sky-50 dark:bg-sky-950/45 text-sky-600 dark:text-sky-400';
+                    case 'green': return 'bg-emerald-50 dark:bg-emerald-950/45 text-emerald-600 dark:text-emerald-400';
+                    case 'yellow': return 'bg-amber-50 dark:bg-amber-950/45 text-amber-600 dark:text-amber-400';
+                    case 'blue': return 'bg-blue-50 dark:bg-blue-950/45 text-blue-600 dark:text-blue-400';
+                    case 'purple': return 'bg-violet-50 dark:bg-violet-950/45 text-violet-600 dark:text-violet-400';
+                    case 'orange': return 'bg-orange-50 dark:bg-orange-950/45 text-orange-600 dark:text-orange-400';
+                    default: return 'bg-blue-50 dark:bg-blue-950/45 text-blue-600 dark:text-blue-400';
+                  }
+                };
+
                 return [...features, ...features].map((feature, idx) => (
                   <div
                     key={idx}
-                    className="bg-white dark:bg-charcoal-900 rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border border-charcoal-100 dark:border-charcoal-800 w-[350px] md:w-[400px] shrink-0 whitespace-normal"
+                    className="bg-white/90 dark:bg-charcoal-900/90 rounded-2xl p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-150/80 dark:border-charcoal-800 w-[350px] md:w-[400px] shrink-0 whitespace-normal flex flex-col group relative overflow-hidden"
                   >
-                    <div className={`w-14 h-14 rounded-lg mb-4 flex items-center justify-center bg-${feature.color}-100 dark:bg-${feature.color}-900/30`}>
-                      <feature.icon className={`w-7 h-7 text-${feature.color}-600 dark:text-${feature.color}-400`} />
+                    <div className={`w-14 h-14 rounded-xl mb-6 flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-3xs ${getColorClasses(feature.color)}`}>
+                      <feature.icon className="w-7 h-7" />
                     </div>
-                    <h3 className="text-xl font-bold text-charcoal-900 dark:text-white mb-2">{feature.title}</h3>
-                    <p className="text-charcoal-600 dark:text-charcoal-400">{feature.description}</p>
+                    <h3 className="text-xl font-bold text-slate-850 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">{feature.title}</h3>
+                    <p className="text-slate-550 dark:text-slate-400 text-sm leading-relaxed">{feature.description}</p>
                   </div>
                 ));
               })()}
@@ -171,30 +197,34 @@ export default function Home() {
       </section>
 
       {/* Featured Listings */}
-      <section className="py-24 bg-white">
+      <section className="py-28 bg-white dark:bg-charcoal-900 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            transition={{ duration: 0.6 }}
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl font-bold text-charcoal-900 mb-4">
+            <span className="inline-block mb-4 text-xs font-bold tracking-[0.2em] uppercase text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-4 py-1.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/50">
+              ✦ Logements en vedette
+            </span>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-5 tracking-tight" style={{ fontFamily: 'var(--font-outfit), sans-serif' }}>
               {t('home_listings_title')}
             </h2>
-            <p className="text-charcoal-600 max-w-2xl mx-auto">
+            <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto text-lg font-light leading-relaxed">
               {t('home_listings_subtitle')}
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
             {featuredListings.map((listing, idx) => (
               <motion.div
                 key={listing.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
+                transition={{ delay: idx * 0.08, duration: 0.5 }}
               >
                 <ListingCard
                   {...listing}
@@ -210,47 +240,51 @@ export default function Home() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="mt-12 text-center"
+            className="mt-16 text-center"
           >
             <Link
               href="/login"
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-full text-base font-semibold transition-all duration-200 border-2 border-terracotta-300 bg-white text-terracotta-700 shadow-sm hover:bg-terracotta-50 hover:border-terracotta-400 active:bg-terracotta-100 h-12 px-8"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all border border-slate-350 dark:border-charcoal-700 bg-white dark:bg-charcoal-900 text-slate-700 dark:text-slate-355 hover:bg-slate-50 dark:hover:bg-charcoal-800 h-12 px-8 hover:scale-[1.02] active:scale-[0.98] duration-200 shadow-sm"
             >
               {t('home_listings_explore')}
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </motion.div>
         </div>
       </section>
 
       {/* Section : Logements avec expériences intégrées */}
-      <section className="py-24 bg-charcoal-50">
+      <section className="py-28 bg-slate-50 dark:bg-charcoal-950 relative border-t border-slate-100 dark:border-charcoal-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            transition={{ duration: 0.6 }}
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl font-bold text-charcoal-900 mb-4">
+            <span className="inline-block mb-4 text-xs font-bold tracking-[0.2em] uppercase text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/40 px-4 py-1.5 rounded-full border border-sky-200/60 dark:border-sky-800/50">
+              ✦ Expériences communautaires
+            </span>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-5 tracking-tight" style={{ fontFamily: 'var(--font-outfit), sans-serif' }}>
               {t('home_exp_title')}
             </h2>
-            <p className="text-charcoal-600 max-w-2xl mx-auto">
+            <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto text-lg font-light leading-relaxed">
               {t('home_exp_subtitle')}
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
             {listings.slice(0, 3).filter(l => l.communityServices?.length > 0).map((listing, idx) => (
               <motion.div
                 key={listing.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 25 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-charcoal-100 group"
+                transition={{ delay: idx * 0.1, duration: 0.5 }}
+                className="bg-white dark:bg-charcoal-900 rounded-3xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-150/80 dark:border-charcoal-800 group flex flex-col"
               >
-                <div className="h-44 overflow-hidden bg-charcoal-200 relative">
+                <div className="h-52 overflow-hidden bg-charcoal-200 dark:bg-charcoal-800 relative">
                   <Image
                     src={listing.images?.[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267'}
                     alt={listing.title}
@@ -258,24 +292,28 @@ export default function Home() {
                     unoptimized
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
-                  <div className="absolute bottom-3 left-3">
-                    <span className="bg-terracotta-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                      {listing.communityServices.length} expérience{listing.communityServices.length > 1 ? 's' : ''} offertes
+                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/70 via-transparent to-transparent z-10" />
+                  <div className="absolute bottom-4 left-4 z-20">
+                    <span className="bg-blue-600/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1">
+                      🤝 {listing.communityServices.length} expérience{listing.communityServices.length > 1 ? 's' : ''} offertes
                     </span>
                   </div>
                 </div>
-                <div className="p-5">
-                  <h3 className="font-bold text-charcoal-900 mb-2 line-clamp-1">{listing.title}</h3>
-                  <p className="text-xs text-charcoal-500 mb-3">📍 {listing.location}</p>
-                  <ul className="space-y-1.5">
-                    {listing.communityServices.map(cs => (
-                      <li key={cs.id} className="text-sm text-charcoal-700 flex items-start gap-2">
-                        <span className="text-terracotta-500 mt-0.5">🤝</span>
-                        <span className="line-clamp-1">{cs.title}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="p-6 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-bold text-lg text-slate-850 dark:text-white mb-2 line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">{listing.title}</h3>
+                    <p className="text-xs text-slate-455 dark:text-slate-400 mb-5 flex items-center gap-1">
+                      <span>📍</span> {listing.location}
+                    </p>
+                    <ul className="space-y-3">
+                      {listing.communityServices.map(cs => (
+                        <li key={cs.id} className="text-sm text-slate-650 dark:text-slate-350 flex items-start gap-2.5 bg-slate-50 dark:bg-charcoal-950 p-2.5 rounded-xl border border-slate-100/50 dark:border-charcoal-850 shadow-3xs">
+                          <span className="text-blue-500 dark:text-blue-400 text-xs mt-0.5">✔</span>
+                          <span className="font-medium line-clamp-1">{cs.title}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -285,34 +323,42 @@ export default function Home() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="mt-12 text-center"
+            className="mt-16 text-center"
           >
             <Link
               href="/register"
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-full text-base font-semibold transition-all duration-200 bg-gradient-to-r from-terracotta-500 to-orange-500 text-white shadow-lg hover:shadow-xl hover:from-terracotta-600 hover:to-orange-600 active:shadow-md h-12 px-8"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all bg-gradient-to-r from-blue-700 to-indigo-600 hover:from-blue-650 hover:to-indigo-550 text-white h-12 px-8 shadow-md shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] duration-200"
             >
               {t('home_exp_cta')}
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </motion.div>
         </div>
       </section>
 
       {/* How it works Section */}
-      <section className="py-24 bg-charcoal-50 border-t border-charcoal-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-28 bg-white dark:bg-charcoal-900 border-t border-slate-100 dark:border-charcoal-800 relative overflow-hidden">
+        {/* Abstract design elements */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/3 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            transition={{ duration: 0.6 }}
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl font-bold text-charcoal-900 mb-4">
+            <span className="inline-block mb-4 text-xs font-bold tracking-[0.2em] uppercase text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-4 py-1.5 rounded-full border border-blue-200/60 dark:border-blue-800/50">
+              ✦ Comment ça marche
+            </span>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'var(--font-outfit), sans-serif' }}>
               {t('home_howto_title')}
             </h2>
+            <div className="mt-4 mx-auto w-16 h-1 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500" />
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
             {[
               {
                 step: "1",
@@ -340,16 +386,16 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="text-center"
+                transition={{ delay: idx * 0.08, duration: 0.5 }}
+                className="bg-slate-50/50 dark:bg-charcoal-950/40 backdrop-blur-xs rounded-2xl p-8 border border-slate-200/40 dark:border-charcoal-800/80 shadow-2xs hover:shadow-md transition-all duration-300 relative group text-center flex flex-col items-center"
               >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-terracotta-500 text-white font-bold text-xl mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 text-blue-700 dark:text-blue-300 font-extrabold text-2xl mb-6 shadow-xs group-hover:scale-110 transition-transform duration-300 border border-blue-100/30 dark:border-blue-900/30">
                   {item.step}
                 </div>
-                <h3 className="text-xl font-bold text-charcoal-900 mb-2">
+                <h3 className="text-lg font-bold text-slate-850 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
                   {item.title}
                 </h3>
-                <p className="text-charcoal-600">{item.description}</p>
+                <p className="text-slate-550 dark:text-slate-400 text-sm leading-relaxed">{item.description}</p>
               </motion.div>
             ))}
           </div>
@@ -357,27 +403,32 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-linear-to-r from-charcoal-900 to-charcoal-800 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-terracotta-500 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-orange-500 rounded-full blur-3xl" />
-        </div>
+      <section className="py-24 relative overflow-hidden">
+        {/* Rich blue gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1920&q=20')] bg-cover bg-center opacity-5" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center px-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <span className="inline-block mb-6 text-xs font-bold tracking-[0.2em] uppercase text-blue-200 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/20">
+              ✦ Rejoindre la communauté
+            </span>
+            <h2 className="text-4xl md:text-6xl font-black mb-6 text-white tracking-tight leading-tight" style={{ fontFamily: 'var(--font-outfit), sans-serif' }}>
               {t('home_cta_title')}
             </h2>
-            <p className="text-xl text-white/80 mb-8">
+            <p className="text-lg md:text-xl text-blue-100 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
               {t('home_cta_subtitle')}
             </p>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-full text-lg font-semibold transition-all duration-200 bg-terracotta-500 hover:bg-terracotta-600 active:bg-terracotta-700 text-white h-14 px-10"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-base font-bold transition-all bg-white text-blue-700 hover:bg-blue-50 h-14 px-10 shadow-xl shadow-blue-900/30 hover:scale-[1.03] active:scale-[0.98] duration-200"
             >
               {t('home_cta_start')}
               <ArrowRight className="ml-2 h-5 w-5" />
